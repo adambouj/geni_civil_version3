@@ -1,8 +1,9 @@
 package com.example.genie.civil.controller;
 
-import com.example.genie.civil.dto.UtilisateurDTO;
+import com.example.genie.civil.dto.UtilisateurCreateDTO;
+import com.example.genie.civil.dto.UtilisateurResponseDTO;
 import com.example.genie.civil.service.UtilisateurService;
-import lombok.RequiredArgsConstructor;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,34 +11,29 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/utilisateurs")
-@RequiredArgsConstructor
 public class UtilisateurController {
+
     private final UtilisateurService utilisateurService;
 
-    @GetMapping
-    public List<UtilisateurDTO> getAll() {
-        return utilisateurService.findAll();
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<UtilisateurDTO> getById(@PathVariable Long id) {
-        return ResponseEntity.ok(utilisateurService.findById(id));
-    }
-
-    @GetMapping("/search")
-    public ResponseEntity<UtilisateurDTO> getByEmail(@RequestParam String email) {
-        return ResponseEntity.ok(utilisateurService.findByEmail(email));
+    public UtilisateurController(UtilisateurService utilisateurService) {
+        this.utilisateurService = utilisateurService;
     }
 
     @PostMapping
-    public ResponseEntity<UtilisateurDTO> create(@RequestBody UtilisateurDTO dto) {
-        return ResponseEntity.ok(utilisateurService.save(dto));
+    public ResponseEntity<UtilisateurResponseDTO> create(
+            @Valid @RequestBody UtilisateurCreateDTO dto) {
+
+        return ResponseEntity.ok(utilisateurService.create(dto));
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<UtilisateurDTO> update(@PathVariable Long id, @RequestBody UtilisateurDTO dto) {
-        dto.setIdUtilisateur(id);
-        return ResponseEntity.ok(utilisateurService.save(dto));
+    @GetMapping
+    public ResponseEntity<List<UtilisateurResponseDTO>> getAll() {
+        return ResponseEntity.ok(utilisateurService.findAll());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<UtilisateurResponseDTO> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(utilisateurService.findById(id));
     }
 
     @DeleteMapping("/{id}")

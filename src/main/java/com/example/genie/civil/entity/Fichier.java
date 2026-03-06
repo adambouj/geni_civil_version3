@@ -15,11 +15,17 @@ public class Fichier {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idFichier;
 
+
+    @Column(nullable = false)
+
     private String typeFichier;
+
+    @Column(nullable = false, length = 1000)
+
     private String url;
 
     @ManyToOne
-    @JoinColumn(name = "id_mission")
+    @JoinColumn(name = "id_mission", nullable = false)
     private MissionTerrain mission;
 
     private LocalDateTime dateUpload;

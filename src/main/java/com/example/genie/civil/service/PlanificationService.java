@@ -1,78 +1,61 @@
 package com.example.genie.civil.service;
 
 import com.example.genie.civil.dto.PlanificationDTO;
-import com.example.genie.civil.entity.Client;
-import com.example.genie.civil.entity.Planification;
-import com.example.genie.civil.entity.Utilisateur;
-import com.example.genie.civil.entity.Vehicule;
-import com.example.genie.civil.mapper.EntityMapper;
-import com.example.genie.civil.repository.ClientRepository;
-import com.example.genie.civil.repository.PlanificationRepository;
-
-import com.example.genie.civil.repository.UtilisateurRepository;
-import com.example.genie.civil.repository.VehiculeRepository;
-import lombok.RequiredArgsConstructor;
+import com.example.genie.civil.entity.*;
+import com.example.genie.civil.mapper.PlanificationMapper;
+import com.example.genie.civil.repository.*;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
-@Transactional
 public class PlanificationService {
 
     private final PlanificationRepository planificationRepository;
     private final UtilisateurRepository utilisateurRepository;
     private final ClientRepository clientRepository;
     private final VehiculeRepository vehiculeRepository;
-    private final EntityMapper entityMapper;
+    private final PlanificationMapper planificationMapper;
 
-    @Transactional(readOnly = true)
-    public List<PlanificationDTO> findAll() {
-        return planificationRepository.findAll()
-                .stream()
-                .map(entityMapper::planificationToDto)
-                .toList();
+    public PlanificationService(PlanificationRepository planificationRepository,
+                                UtilisateurRepository utilisateurRepository,
+                                ClientRepository clientRepository,
+                                VehiculeRepository vehiculeRepository,
+                                PlanificationMapper planificationMapper) {
+        this.planificationRepository = planificationRepository;
+        this.utilisateurRepository = utilisateurRepository;
+        this.clientRepository = clientRepository;
+        this.vehiculeRepository = vehiculeRepository;
+        this.planificationMapper = planificationMapper;
     }
 
-    @Transactional(readOnly = true)
-    public PlanificationDTO findById(Long id) {
-        return planificationRepository.findById(id)
-                .map(entityMapper::planificationToDto)
-                .orElseThrow(() ->
-                        new RuntimeException("Planification non trouvée avec l'ID: " + id));
-    }
+    public PlanificationDTO create(PlanificationDTO dto) {
 
-    public PlanificationDTO save(PlanificationDTO dto) {
-        Planification planification = entityMapper.planificationToEntity(dto);
+        Planification planification = planificationMapper.toEntity(dto);
 
-        if (dto.getIdUtilisateur() != null) {
-            Utilisateur utilisateur = utilisateurRepository.findById(dto.getIdUtilisateur())
-                    .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé: " + dto.getIdUtilisateur()));
-            planification.setUtilisateur(utilisateur);
-        }
+        Utilisateur utilisateur = utilisateurRepository.findById(dto.getIdUtilisateur())
+                .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
 
-        if (dto.getIdClient() != null) {
-            Client client = clientRepository.findById(dto.getIdClient())
-                    .orElseThrow(() -> new RuntimeException("Client non trouvé: " + dto.getIdClient()));
-            planification.setClient(client);
-        }
+        Client client = clientRepository.findById(dto.getIdClient())
+                .orElseThrow(() -> new RuntimeException("Client introuvable"));
 
-        if (dto.getIdVehicule() != null) {
-            Vehicule vehicule = vehiculeRepository.findById(dto.getIdVehicule())
-                    .orElseThrow(() -> new RuntimeException("Vehicule non trouvé: " + dto.getIdVehicule()));
-            planification.setVehicule(vehicule);
-        }
+        Vehicule vehicule = vehiculeRepository.findById(dto.getIdVehicule())
+                .orElseThrow(() -> new RuntimeException("Vehicule introuvable"));
+
+        Utilisateur creePar = utilisateurRepository.findById(dto.getCreeParId())
+                .orElseThrow(() -> new RuntimeException("Créateur introuvable"));
+
+        planification.setUtilisateur(utilisateur);
+        planification.setClient(client);
+        planification.setVehicule(vehicule);
+        planification.setCreePar(creePar);
 
         Planification saved = planificationRepository.save(planification);
-        return entityMapper.planificationToDto(saved);
+
+        return planificationMapper.toDTO(saved);
     }
 
-    public void delete(Long id) {
-        if (!planificationRepository.existsById(id)) {
-            throw new RuntimeException("Planification non trouvée avec l'ID: " + id);
-        }
-        planificationRepository.deleteById(id);
+    public List<PlanificationDTO> findAll() {
+        return planificationMapper.toDTOList(planificationRepository.findAll());
     }
 }

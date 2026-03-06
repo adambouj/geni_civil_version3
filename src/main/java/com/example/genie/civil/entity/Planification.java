@@ -8,9 +8,11 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "planifications")
 @Getter @Setter
-@NoArgsConstructor @AllArgsConstructor
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class Planification {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idPlanification;
@@ -27,10 +29,17 @@ public class Planification {
     @JoinColumn(name = "id_vehicule")
     private Vehicule vehicule;
 
+    @ManyToOne
+    @JoinColumn(name = "id_materiel")
+    private Materiel materiel;
+
+    @ManyToOne
+    @JoinColumn(name = "cree_par")
+    private Utilisateur creePar;
+
     private LocalDateTime datePlanifiee;
     private String description;
     private String statut;
-    private String creePar;
     private LocalDateTime dateCreation;
 
     @PrePersist

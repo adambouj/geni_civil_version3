@@ -34,6 +34,7 @@ public class Utilisateur {
             inverseJoinColumns = @JoinColumn(name = "id_role")
     )
     private Set<Role> roles = new HashSet<>();
+    // RELATIONS
 
     @OneToMany(mappedBy = "utilisateur")
     private Set<Planification> planifications;

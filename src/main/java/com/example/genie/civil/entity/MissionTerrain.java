@@ -28,18 +28,29 @@ public class MissionTerrain {
     @JoinColumn(name = "id_vehicule")
     private Vehicule vehicule;
 
+    @ManyToOne
+    @JoinColumn(name = "id_materiel")
+    private Materiel materiel;
+
+
+    @Column(unique = true, nullable = false)
     private String numeroIntervention;
     private String typeIntervention;
     private LocalDateTime dateHeureDebut;
     private String statut;
     private LocalDateTime dateHeureFin;
     private Integer dureeTotale;
+
+    @Column(length = 2000)
+
     private String description;
     private String observations;
     private LocalDateTime dateCreation;
 
-    @OneToMany(mappedBy = "mission")
+
+    @OneToMany(mappedBy = "mission", cascade = CascadeType.ALL)
     private Set<Fichier> fichiers;
+
 
     @PrePersist
     protected void onCreate() {

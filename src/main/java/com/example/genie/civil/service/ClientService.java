@@ -2,59 +2,48 @@ package com.example.genie.civil.service;
 
 import com.example.genie.civil.dto.ClientDTO;
 import com.example.genie.civil.entity.Client;
-import com.example.genie.civil.mapper.EntityMapper;
+import com.example.genie.civil.mapper.ClientMapper;
 import com.example.genie.civil.repository.ClientRepository;
-
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
-@Transactional
 public class ClientService {
 
     private final ClientRepository clientRepository;
-    private final EntityMapper entityMapper;
+    private final ClientMapper clientMapper;
 
     public ClientService(ClientRepository clientRepository,
-                         EntityMapper entityMapper) {
+                         ClientMapper clientMapper) {
         this.clientRepository = clientRepository;
-        this.entityMapper = entityMapper;
+        this.clientMapper = clientMapper;
+    }
+
+    public ClientDTO create(ClientDTO dto) {
+
+        if (clientRepository.findByNomClient(dto.getNomClient()).isPresent()) {
+            throw new RuntimeException("Client déjà existant");
+        }
+
+        Client client = clientMapper.toEntity(dto);
+        Client saved = clientRepository.save(client);
+
+        return clientMapper.toDTO(saved);
     }
 
     public List<ClientDTO> findAll() {
-        return clientRepository.findAll()
-                .stream()
-                .map(entityMapper::clientToDto)
-                .toList();
+        return clientMapper.toDTOList(clientRepository.findAll());
     }
 
     public ClientDTO findById(Long id) {
-        return clientRepository.findById(id)
-                .map(entityMapper::clientToDto)
-                .orElseThrow(() ->
-                        new RuntimeException("Client non trouvé avec l'ID: " + id));
-    }
+        Client client = clientRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Client non trouvé"));
 
-    public ClientDTO findByName(String name) {
-        return clientRepository.findByNomClient(name)
-                .map(entityMapper::clientToDto)
-                .orElseThrow(() ->
-                        new RuntimeException("Client non trouvé avec le nom: " + name));
-    }
-
-    public ClientDTO save(ClientDTO dto) {
-        Client entity = entityMapper.clientToEntity(dto);
-        return entityMapper.clientToDto(
-                clientRepository.save(entity)
-        );
+        return clientMapper.toDTO(client);
     }
 
     public void delete(Long id) {
-        if (!clientRepository.existsById(id)) {
-            throw new RuntimeException("Client non trouvé avec l'ID: " + id);
-        }
         clientRepository.deleteById(id);
     }
 }

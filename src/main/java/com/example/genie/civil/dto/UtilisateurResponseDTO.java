@@ -8,15 +8,17 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.Set;
 
-@Data @NoArgsConstructor @AllArgsConstructor @Builder
-public class UtilisateurDTO {
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class UtilisateurResponseDTO {
+
     private Long idUtilisateur;
     private String nom;
     private String prenom;
     private String email;
-    private String motDePasse;
     private Boolean actif;
     private LocalDateTime dateCreation;
-
-    private Set<Long> roleIds;
+    private Set<RoleDTO> roles;
 }

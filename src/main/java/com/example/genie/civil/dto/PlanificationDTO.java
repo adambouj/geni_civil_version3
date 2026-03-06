@@ -17,8 +17,15 @@ public class PlanificationDTO {
     private Long idUtilisateur;
     private Long idClient;
     private Long idVehicule;
+
+    private Long creeParId;
+
+
     private String description;
     private String statut;
     private LocalDateTime datePlanifiee;
-    private String creePar;
+    private LocalDateTime dateCreation;
+
+
+
 }

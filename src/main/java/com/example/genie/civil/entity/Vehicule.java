@@ -16,7 +16,12 @@ public class Vehicule {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idVehicule;
 
+    @Column(unique = true)
+
     private String numeroParc;
+
+    @Column(unique = true, nullable = false)
+
     private String immatriculation;
     private String etat;
     private LocalDateTime dateCreation;
