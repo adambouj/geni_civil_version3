@@ -6,6 +6,7 @@ import com.example.genie.civil.mapper.MissionTerrainMapper;
 import com.example.genie.civil.repository.*;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.util.List;
 
 @Service
@@ -45,6 +46,15 @@ public class MissionTerrainService {
         mission.setUtilisateur(utilisateur);
         mission.setClient(client);
         mission.setVehicule(vehicule);
+        // 🔹 Calculate duration automatically
+        if (dto.getDateHeureDebut() != null && dto.getDateHeureFin() != null) {
+            int duree = (int) Duration.between(
+                    dto.getDateHeureDebut(),
+                    dto.getDateHeureFin()
+            ).toMinutes();
+
+            mission.setDureeTotale(duree);
+        }
 
         MissionTerrain saved = missionRepository.save(mission);
 

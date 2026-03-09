@@ -7,6 +7,7 @@ import com.example.genie.civil.entity.Utilisateur;
 import com.example.genie.civil.mapper.UtilisateurMapper;
 import com.example.genie.civil.repository.RoleRepository;
 import com.example.genie.civil.repository.UtilisateurRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -19,13 +20,16 @@ public class UtilisateurService {
     private final UtilisateurRepository utilisateurRepository;
     private final RoleRepository roleRepository;
     private final UtilisateurMapper utilisateurMapper;
+    private final PasswordEncoder passwordEncoder;
 
     public UtilisateurService(UtilisateurRepository utilisateurRepository,
                               RoleRepository roleRepository,
-                              UtilisateurMapper utilisateurMapper) {
+                              UtilisateurMapper utilisateurMapper,
+                              PasswordEncoder passwordEncoder) {
         this.utilisateurRepository = utilisateurRepository;
         this.roleRepository = roleRepository;
         this.utilisateurMapper = utilisateurMapper;
+        this.passwordEncoder = passwordEncoder;
     }
 
     // CREATE
@@ -36,6 +40,10 @@ public class UtilisateurService {
         }
 
         Utilisateur utilisateur = utilisateurMapper.toEntity(dto);
+
+        // Encrypt password
+        utilisateur.setMotDePasse(passwordEncoder.encode(dto.getMotDePasse()));
+
 
         // Inject roles
         Set<Role> roles = new HashSet<>(roleRepository.findAllById(dto.getRoleIds()));
