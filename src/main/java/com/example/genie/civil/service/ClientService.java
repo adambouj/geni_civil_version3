@@ -22,8 +22,8 @@ public class ClientService {
 
     public ClientDTO create(ClientDTO dto) {
 
-        if (clientRepository.findByNomClient(dto.getNomClient()).isPresent()) {
-            throw new RuntimeException("Client déjà existant");
+        if (clientRepository.findBySiret(dto.getSiret()).isPresent()) {
+            throw new RuntimeException("Client avec ce SIRET existe déjà");
         }
 
         Client client = clientMapper.toEntity(dto);
@@ -43,7 +43,25 @@ public class ClientService {
         return clientMapper.toDTO(client);
     }
 
+    public ClientDTO update(Long id, ClientDTO dto) {
+        Client client = clientRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Client non trouvé"));
+
+        client.setNomClient(dto.getNomClient());
+        client.setSiret(dto.getSiret());
+        client.setAdresse(dto.getAdresse());
+        client.setTelephone(dto.getTelephone());
+        client.setEmail(dto.getEmail());
+
+        Client updated = clientRepository.save(client);
+
+        return clientMapper.toDTO(updated);
+    }
+
     public void delete(Long id) {
-        clientRepository.deleteById(id);
+        Client client = clientRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Client non trouvé"));
+
+        clientRepository.delete(client);
     }
 }

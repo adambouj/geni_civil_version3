@@ -38,7 +38,14 @@ public class VehiculeController {
     @PostMapping
     public ResponseEntity<VehiculeDTO> create(
             @Valid @RequestBody VehiculeDTO dto) {
-        return ResponseEntity.ok(vehiculeService.save(dto));
+        return ResponseEntity.ok(vehiculeService.create(dto));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<VehiculeDTO> update(
+            @PathVariable Long id,
+            @Valid @RequestBody VehiculeDTO dto) {
+        return ResponseEntity.ok(vehiculeService.update(id, dto));
     }
 
     @DeleteMapping("/{id}")
@@ -46,6 +53,4 @@ public class VehiculeController {
         vehiculeService.delete(id);
         return ResponseEntity.noContent().build();
     }
-
-    // put
 }

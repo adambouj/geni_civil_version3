@@ -44,7 +44,6 @@ public class UtilisateurService {
         // Encrypt password
         utilisateur.setMotDePasse(passwordEncoder.encode(dto.getMotDePasse()));
 
-
         // Inject roles
         Set<Role> roles = new HashSet<>(roleRepository.findAllById(dto.getRoleIds()));
         utilisateur.setRoles(roles);
@@ -67,8 +66,41 @@ public class UtilisateurService {
         return utilisateurMapper.toResponseDTO(utilisateur);
     }
 
+    // UPDATE
+    public UtilisateurResponseDTO update(Long id, UtilisateurCreateDTO dto) {
+        Utilisateur utilisateur = utilisateurRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+
+        // Update basic fields
+        utilisateur.setNom(dto.getNom());
+        utilisateur.setPrenom(dto.getPrenom());
+
+        if (!utilisateur.getEmail().equals(dto.getEmail())) {
+            // Check email uniqueness
+            if (utilisateurRepository.findByEmail(dto.getEmail()).isPresent()) {
+                throw new RuntimeException("Email déjà utilisé");
+            }
+            utilisateur.setEmail(dto.getEmail());
+        }
+
+        // Update password if provided
+        if (dto.getMotDePasse() != null && !dto.getMotDePasse().isBlank()) {
+            utilisateur.setMotDePasse(passwordEncoder.encode(dto.getMotDePasse()));
+        }
+
+        // Update roles
+        Set<Role> roles = new HashSet<>(roleRepository.findAllById(dto.getRoleIds()));
+        utilisateur.setRoles(roles);
+
+        Utilisateur updated = utilisateurRepository.save(utilisateur);
+
+        return utilisateurMapper.toResponseDTO(updated);
+    }
+
     // DELETE
     public void delete(Long id) {
-        utilisateurRepository.deleteById(id);
+        Utilisateur utilisateur = utilisateurRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+        utilisateurRepository.delete(utilisateur);
     }
 }

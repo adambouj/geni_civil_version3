@@ -22,9 +22,41 @@ public class MissionTerrainController {
         return ResponseEntity.ok(missionService.findAll());
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<MissionTerrainDTO> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(missionService.findById(id));
+    }
+
+    @GetMapping("/utilisateur/{id}")
+    public ResponseEntity<List<MissionTerrainDTO>> getByUtilisateur(@PathVariable Long id) {
+        return ResponseEntity.ok(missionService.findByUtilisateur(id));
+    }
+
+    @GetMapping("/client/{id}")
+    public ResponseEntity<List<MissionTerrainDTO>> getByClient(@PathVariable Long id) {
+        return ResponseEntity.ok(missionService.findByClient(id));
+    }
+
     @PostMapping
     public ResponseEntity<MissionTerrainDTO> create(
             @Valid @RequestBody MissionTerrainDTO dto) {
-        return ResponseEntity.ok(missionService.create(dto));
+
+        MissionTerrainDTO created = missionService.create(dto);
+        return ResponseEntity.status(201).body(created);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<MissionTerrainDTO> update(
+            @PathVariable Long id,
+            @Valid @RequestBody MissionTerrainDTO dto) {
+
+        return ResponseEntity.ok(missionService.update(id, dto));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+
+        missionService.delete(id);
+        return ResponseEntity.noContent().build();
     }
 }

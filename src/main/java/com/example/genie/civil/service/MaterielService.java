@@ -21,8 +21,14 @@ public class MaterielService {
     }
 
     public MaterielDTO create(MaterielDTO dto) {
+
+        if (materielRepository.existsByReference(dto.getReference())) {
+            throw new RuntimeException("Matériel avec cette référence existe déjà");
+        }
+
         Materiel materiel = materielMapper.toEntity(dto);
         Materiel saved = materielRepository.save(materiel);
+
         return materielMapper.toDTO(saved);
     }
 
@@ -30,7 +36,31 @@ public class MaterielService {
         return materielMapper.toDTOList(materielRepository.findAll());
     }
 
+    public MaterielDTO findById(Long id) {
+        Materiel materiel = materielRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Matériel non trouvé"));
+
+        return materielMapper.toDTO(materiel);
+    }
+
+    public MaterielDTO update(Long id, MaterielDTO dto) {
+
+        Materiel materiel = materielRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Matériel non trouvé"));
+
+        materiel.setNom(dto.getNom());
+        materiel.setReference(dto.getReference());
+        materiel.setEtat(dto.getEtat());
+
+        Materiel updated = materielRepository.save(materiel);
+
+        return materielMapper.toDTO(updated);
+    }
+
     public void delete(Long id) {
-        materielRepository.deleteById(id);
+        Materiel materiel = materielRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Matériel non trouvé"));
+
+        materielRepository.delete(materiel);
     }
 }

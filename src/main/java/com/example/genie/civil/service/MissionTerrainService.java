@@ -23,6 +23,7 @@ public class MissionTerrainService {
                                  ClientRepository clientRepository,
                                  VehiculeRepository vehiculeRepository,
                                  MissionTerrainMapper missionMapper) {
+
         this.missionRepository = missionRepository;
         this.utilisateurRepository = utilisateurRepository;
         this.clientRepository = clientRepository;
@@ -31,6 +32,10 @@ public class MissionTerrainService {
     }
 
     public MissionTerrainDTO create(MissionTerrainDTO dto) {
+
+        if (missionRepository.findByNumeroIntervention(dto.getNumeroIntervention()).isPresent()) {
+            throw new RuntimeException("Numéro d'intervention déjà existant");
+        }
 
         MissionTerrain mission = missionMapper.toEntity(dto);
 
@@ -43,10 +48,11 @@ public class MissionTerrainService {
         Vehicule vehicule = vehiculeRepository.findById(dto.getIdVehicule())
                 .orElseThrow(() -> new RuntimeException("Vehicule introuvable"));
 
+
         mission.setUtilisateur(utilisateur);
         mission.setClient(client);
         mission.setVehicule(vehicule);
-        // 🔹 Calculate duration automatically
+
         if (dto.getDateHeureDebut() != null && dto.getDateHeureFin() != null) {
             int duree = (int) Duration.between(
                     dto.getDateHeureDebut(),
@@ -63,5 +69,75 @@ public class MissionTerrainService {
 
     public List<MissionTerrainDTO> findAll() {
         return missionMapper.toDTOList(missionRepository.findAll());
+    }
+
+    public MissionTerrainDTO findById(Long id) {
+
+        MissionTerrain mission = missionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Mission non trouvée"));
+
+        return missionMapper.toDTO(mission);
+    }
+
+    public List<MissionTerrainDTO> findByUtilisateur(Long idUtilisateur) {
+        return missionMapper.toDTOList(
+                missionRepository.findByUtilisateur_IdUtilisateur(idUtilisateur)
+        );
+    }
+
+    public List<MissionTerrainDTO> findByClient(Long idClient) {
+        return missionMapper.toDTOList(
+                missionRepository.findByClient_IdClient(idClient)
+        );
+    }
+
+    public MissionTerrainDTO update(Long id, MissionTerrainDTO dto) {
+
+        MissionTerrain mission = missionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Mission non trouvée"));
+
+        Utilisateur utilisateur = utilisateurRepository.findById(dto.getIdUtilisateur())
+                .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
+
+        Client client = clientRepository.findById(dto.getIdClient())
+                .orElseThrow(() -> new RuntimeException("Client introuvable"));
+
+        Vehicule vehicule = vehiculeRepository.findById(dto.getIdVehicule())
+                .orElseThrow(() -> new RuntimeException("Vehicule introuvable"));
+
+
+        mission.setUtilisateur(utilisateur);
+        mission.setClient(client);
+        mission.setVehicule(vehicule);
+
+        mission.setNumeroIntervention(dto.getNumeroIntervention());
+        mission.setTypeIntervention(dto.getTypeIntervention());
+        mission.setDateHeureDebut(dto.getDateHeureDebut());
+        mission.setDateHeureFin(dto.getDateHeureFin());
+        mission.setStatut(dto.getStatut());
+        mission.setDescription(dto.getDescription());
+        mission.setObservations(dto.getObservations());
+
+        if (dto.getDateHeureDebut() != null && dto.getDateHeureFin() != null) {
+
+            int duree = (int) Duration.between(
+                    dto.getDateHeureDebut(),
+                    dto.getDateHeureFin()
+            ).toMinutes();
+
+            mission.setDureeTotale(duree);
+        }
+
+        MissionTerrain updated = missionRepository.save(mission);
+
+        return missionMapper.toDTO(updated);
+    }
+
+    public void delete(Long id) {
+
+        MissionTerrain mission = missionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Mission non trouvée"));
+
+        missionRepository.delete(mission);
     }
 }
