@@ -13,7 +13,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/pointages")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "http://localhost:4200")
 public class PointageController {
 
     private final PointageService pointageService;

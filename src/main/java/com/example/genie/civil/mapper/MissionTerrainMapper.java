@@ -11,8 +11,12 @@ import java.util.List;
 public interface MissionTerrainMapper {
 
     @Mapping(source = "utilisateur.idUtilisateur", target = "idUtilisateur")
+    @Mapping(source = "utilisateur.nom", target = "utilisateurNom")
+    @Mapping(source = "utilisateur.prenom", target = "utilisateurPrenom")
     @Mapping(source = "client.idClient", target = "idClient")
+    @Mapping(source = "client.nomClient", target = "clientNom")
     @Mapping(source = "vehicule.idVehicule", target = "idVehicule")
+    @Mapping(source = "vehicule.immatriculation", target = "vehiculeImmatriculation")
     MissionTerrainDTO toDTO(MissionTerrain mission);
 
     @Mapping(target = "utilisateur", ignore = true)
